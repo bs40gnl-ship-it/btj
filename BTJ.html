@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Heures supplémentaires</title><style>
+*{box-sizing:border-box}body{margin:0;background:#0b1420;color:#eaf2fb;font-family:Arial,sans-serif}main{max-width:900px;margin:auto;padding:16px}header{display:flex;justify-content:space-between;align-items:center;margin:8px 0 18px}h1{font-size:22px;margin:0}.card{background:#12202f;border:1px solid #293c4e;border-radius:14px;padding:15px;margin-bottom:12px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:#0b1724;border-radius:10px;padding:12px}.label{font-size:12px;color:#91a5b9}.value{font-size:23px;font-weight:bold;margin-top:5px}.orange{color:#ff9d42}form{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:9px;align-items:end}label{display:block;color:#91a5b9;font-size:12px;margin-bottom:5px}input{width:100%;padding:11px;border-radius:9px;border:1px solid #304457;background:#081420;color:white;font-size:15px}button{border:0;border-radius:9px;padding:10px 13px;font-weight:bold;cursor:pointer}.add{background:#ffa444;color:#211506}.pdf{width:100%;background:#284258;color:#fff;padding:13px;margin-top:12px}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:520px}th,td{text-align:center;padding:10px;border-bottom:1px solid #283a4b;font-size:13px}th{color:#91a5b9}tr.friday{background:#ff9d4212;color:#ffb765}tr.friday td:first-child,tr.friday .hours{font-weight:bold}.hours{font-weight:bold}.actions{display:flex;gap:5px;justify-content:center}.small{padding:6px 8px;font-size:12px;background:#294057;color:#eaf2fb}.del{background:#492631;color:#ffc0c9}.empty{text-align:center;color:#91a5b9;padding:22px}.note{text-align:center;font-size:11px;color:#91a5b9;margin-top:8px}.ferie{grid-column:1/-1}.chk{display:flex;align-items:center;gap:9px;color:#eaf2fb;font-size:14px;margin:0;cursor:pointer}.chk input{width:20px;height:20px;padding:0;accent-color:#ffa444}.desc{grid-column:1/-1}textarea{width:100%;padding:11px;border-radius:9px;border:1px solid #304457;background:#081420;color:white;font-size:15px;font-family:Arial,sans-serif;resize:vertical;min-height:70px}td.d{white-space:pre-line;text-align:left;font-size:12px;min-width:170px;word-break:break-word}#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);align-items:center;justify-content:center;z-index:50;padding:16px}#bx{background:#12202f;border:1px solid #3a5069;border-radius:14px;padding:18px;width:100%;max-width:380px}#bxt{white-space:pre-line;line-height:1.5;margin-bottom:14px;font-size:15px}#bxs{width:100%;padding:11px;border-radius:9px;border:1px solid #304457;background:#081420;color:white;font-size:15px;margin-bottom:14px}#bx .act{display:flex;gap:10px;justify-content:flex-end}#bx .act button{padding:10px 16px;font-size:14px}.chk input{flex:none}th:last-child,td:last-child{position:sticky;right:0;background:#12202f;box-shadow:-6px 0 8px -6px rgba(0,0,0,.6)}@media(max-width:600px){.actions{flex-direction:column;gap:6px}td{padding:8px 6px}}@media(max-width:600px){main{padding:11px}h1{font-size:19px}.stats{grid-template-columns:1fr 1fr}.value{font-size:20px}form{grid-template-columns:1fr 1fr}.date{grid-column:1/-1}.add{grid-column:1/-1}}
+</style></head><body><main><header><div><h1>Heures supplémentaires</h1><div class="label" style="margin-top:5px">Suivi des heures & congé de récupération</div></div><span>⏱️</span></header>
+<section class="card stats"><div class="stat"><div class="label">Total des heures</div><div class="value" id="total">0 h</div></div><div class="stat"><div class="label">Heures vendredi / férié</div><div class="value orange" id="fri">0 h</div></div><div class="stat"><div class="label">CR acquis</div><div class="value orange" id="cr">0 jour</div></div><div class="stat"><div class="label">Heures du samedi</div><div class="value" id="sat">0 h</div></div><div class="stat"><div class="label">Heures de nuit (19h-07h)</div><div class="value" id="nuit">0 h</div></div></section>
+<section class="card"><form id="form"><input type="hidden" id="edit"><div class="date"><label>Date</label><input id="date" type="date" required></div><div><label>De</label><input id="from" type="time" value="08:00" required></div><div><label>À</label><input id="to" type="time" value="16:00" required></div><button class="add" id="submit">+ Ajouter</button><div class="desc"><button type="button" class="small" id="cancel" style="display:none;margin-bottom:8px">✕ Annuler la modification</button><label>Description du travail</label><textarea id="desc" rows="3" placeholder="Ex. : soudage, levage, contrôle... (Entrée = nouvelle ligne)"></textarea></div><div class="ferie"><label class="chk"><input type="checkbox" id="normal"> Journée normale (08:00 - 16:00, dimanche à jeudi) : description seulement, heures non comptées</label></div><div class="ferie"><label class="chk"><input type="checkbox" id="ferie"> Jour férié (compté comme un vendredi)</label></div></form></section>
+<section class="card"><div class="tablewrap"><table><thead><tr><th>Date</th><th>Jour</th><th>De</th><th>À</th><th>Durée</th><th>Description</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">Aucun enregistrement.</div></div><button class="pdf" id="pdf">📄 Générer le bilan mensuel PDF</button><button class="pdf" id="save">💾 Sauvegarder mon travail (fichier)</button><button class="pdf" id="restore">📂 Restaurer une sauvegarde</button><input type="file" id="file" accept=".json,application/json" style="display:none"><div class="note">Enregistrement automatique sur cet appareil et ce navigateur.</div><div style="text-align:center;font-size:10px;color:#6f8498;margin-top:12px">Tous droits réservés à BENMANSOUR SAMI</div></section></main>
+<div id="ov"><div id="bx"><div id="bxt"></div><select id="bxs"></select><div class="act"><button type="button" class="small" id="bxn">Annuler</button><button type="button" class="small" id="bxy">OK</button></div></div></div>
+<script>
+const KEY='hs_fr_simple_persist_v2';let data=JSON.parse(localStorage.getItem(KEY)||'[]');const $=id=>document.getElementById(id);
+function day(d){return ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date(d+'T12:00:00').getDay()]}function friday(d){return new Date(d+'T12:00:00').getDay()===5}
+function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function today(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function ask(msg,o,cb){$('bxt').textContent=msg;let sel=$('bxs');sel.style.display=o.options?'block':'none';if(o.options){sel.innerHTML=o.options.map(v=>'<option value="'+v[0]+'">'+v[1]+'</option>').join('');sel.value=o.value}$('bxy').textContent=o.ok;$('bxy').className='small'+(o.danger?' del':'');$('ov').style.display='flex';const close=()=>{$('ov').style.display='none';$('bxy').onclick=null;$('bxn').onclick=null;document.onkeydown=null};$('bxn').onclick=close;$('ov').onclick=ev=>{if(ev.target===$('ov'))close()};$('bxy').onclick=()=>{let v=sel.value;close();cb(v)};document.onkeydown=ev=>{if(ev.key==='Escape')close()}}function off(e){return friday(e.date)||!!e.ferie}function isSat(d){return new Date(d+'T12:00:00').getDay()===6}function night(a,b){let [h,m]=a.split(':').map(Number),[x,y]=b.split(':').map(Number),s=h*60+m,e=x*60+y;if(e<s)e+=1440;let t=0;for(const [p,q] of [[0,420],[1140,1860],[2580,2880]])t+=Math.max(0,Math.min(e,q)-Math.max(s,p));return t/60}function dur(a,b){let [h,m]=a.split(':').map(Number),[x,y]=b.split(':').map(Number),v=x*60+y-h*60-m;if(v<0)v+=1440;return v/60}function fmt(v){return Number(v).toFixed(2).replace('.',',')}
+function draw(){data.sort((a,b)=>a.date.localeCompare(b.date));let total=data.reduce((s,e)=>s+e.hours,0),fh=data.filter(off).reduce((s,e)=>s+e.hours,0);$('total').textContent=fmt(total)+' h';$('fri').textContent=fmt(fh)+' h';$('cr').textContent=fmt(fh/8)+' jour';$('sat').textContent=fmt(data.filter(e=>isSat(e.date)).reduce((s,e)=>s+e.hours,0))+' h';$('nuit').textContent=fmt(data.reduce((s,e)=>s+night(e.from,e.to),0))+' h';$('rows').innerHTML=data.map(e=>`<tr class="${off(e)?'friday':''}"><td>${e.date}</td><td>${day(e.date)}${e.ferie?' (férié)':''}</td><td>${e.from}</td><td>${e.to}</td><td class="hours">${e.normal?'Normale':fmt(e.hours)+' h'}</td><td class="d">${esc(e.desc)}</td><td><div class="actions"><button class="small" onclick="editRow(${e.id})">Modifier</button><button class="small del" onclick="removeRow(${e.id})">Supprimer</button></div></td></tr>`).join('');$('empty').style.display=data.length?'none':'block';localStorage.setItem(KEY,JSON.stringify(data))}
+$('form').onsubmit=e=>{e.preventDefault();let date=$('date').value,normal=$('normal').checked,from=normal?'08:00':$('from').value,to=normal?'16:00':$('to').value,hours=normal?0:dur(from,to);if(normal&&[5,6].includes(new Date(date+'T12:00:00').getDay())){alert('Une journée normale est du dimanche au jeudi (pas le vendredi ni le samedi).');return}if(!normal&&hours<=0){alert('La durée doit être positive.');return}let id=Number($('edit').value),entry={id:id||Date.now(),date,from,to,hours,ferie:normal?false:$('ferie').checked,normal,desc:$('desc').value.trim()};if(id)data=data.map(x=>x.id===id?entry:x);else data.push(entry);draw();reset()};
+window.editRow=id=>{let e=data.find(x=>x.id===id);$('edit').value=e.id;$('date').value=e.date;$('from').value=e.from;$('to').value=e.to;$('normal').checked=!!e.normal;$('ferie').checked=!!e.ferie;syncNormal();$('desc').value=e.desc||'';$('submit').textContent='Enregistrer';$('cancel').style.display='block';$('form').scrollIntoView({behavior:'smooth',block:'center'})};
+window.removeRow=id=>{let e=data.find(x=>x.id===id);if(!e)return;let d=e.date.split('-').reverse().join('/'),t=(e.desc||'').trim();if(t.length>80)t=t.slice(0,80)+'...';ask('Supprimer définitivement l\'enregistrement du '+d+' ?'+(t?'\n« '+t+' »':'')+'\n\nCette action est irréversible.',{ok:'Oui, supprimer',danger:true},()=>{data=data.filter(x=>x.id!==id);if(Number($('edit').value)===id)reset();draw()})};
+function syncNormal(){let n=$('normal').checked;if(n){$('from').value='08:00';$('to').value='16:00';$('ferie').checked=false}$('from').disabled=n;$('to').disabled=n;$('ferie').disabled=n}
+$('normal').onchange=syncNormal;$('cancel').onclick=()=>reset();
+function reset(){$('form').reset();$('edit').value='';$('date').value=today();$('from').value='08:00';$('to').value='16:00';$('ferie').checked=false;$('normal').checked=false;syncNormal();$('desc').value='';$('submit').textContent='+ Ajouter';$('cancel').style.display='none'}
+$('pdf').onclick=()=>{
+ if(!data.length){alert('Aucune donnée.');return}
+ let months=[...new Set(data.map(x=>x.date.slice(0,7)))].sort();
+ ask('Choisir le mois du bilan PDF :',{ok:'Générer le PDF',options:months.map(m=>{let l=new Date(m+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});return [m,l.charAt(0).toUpperCase()+l.slice(1)]}),value:months[months.length-1]},makePdf);
+};
+function makePdf(month){
+ let list=data.filter(x=>x.date.startsWith(month));
+ if(!list.length){alert('Aucun enregistrement pour ce mois.');return}
+ let sum=list.reduce((s,x)=>s+x.hours,0),fr=list.filter(off).reduce((s,x)=>s+x.hours,0);
+ let sat=list.filter(x=>isSat(x.date)).reduce((s,x)=>s+x.hours,0),nuit=list.reduce((s,x)=>s+night(x.from,x.to),0);
+ let label=new Date(month+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+ label=label.charAt(0).toUpperCase()+label.slice(1);
+ // PDF autonome : tableau noir et blanc, A4 paysage, accents conservés (WinAnsi), plusieurs pages si besoin.
+ const enc=v=>String(v).replace(/[\u2013\u2014]/g,'-').replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/\u0153/g,'oe').replace(/\u0152/g,'OE').replace(/[\u202f\u00a0]/g,' ').split('').map(ch=>{let c=ch.charCodeAt(0);if(c===40||c===41||c===92)return '\\'+ch;if(c>=32&&c<=126)return ch;if(c>=160&&c<=255)return '\\'+c.toString(8).padStart(3,'0');return '?'}).join('');
+ const wid=(s,sz,b)=>{let w=0;for(const ch of String(s)){w+=/[0-9]/.test(ch)?.556:/[ .,:;\/|'\-]/.test(ch)?.3:/[A-ZÀ-Ý]/.test(ch)?.69:.53}return w*sz*(b?1.06:1)};
+ const W=842,H=595,M=40,rowH=22,colW=[30,70,100,50,50,65,65,332],tw=colW.reduce((a,b)=>a+b,0);
+ const headers=['N°','Date','Jour','De','À','Durée','CR acquis','Description du travail'];
+ let P=[],idx=0;
+ const newPage=()=>{P.push('0 g 0 G 0 J 0 j\n');idx=P.length-1};
+ const out=s=>{P[idx]+=s};
+ const box=(x,y,w,h,lw=.8)=>out(`${lw} w ${x} ${y} ${w} ${h} re S\n`);
+ const text=(x,y,sz,s,b,al)=>{let w=wid(s,sz,b),xx=al==='c'?x-w/2:al==='r'?x-w:x;out(`BT /${b?'F2':'F1'} ${sz} Tf ${xx.toFixed(2)} ${y.toFixed(2)} Td (${enc(s)}) Tj ET\n`)};
+ const cell=(x,y,w,h,s,sz,b)=>{box(x,y,w,h);text(x+w/2,y+h/2-sz*.35,sz,s,b,'c')};
+ const wrap1=(s,maxW,sz)=>{let lines=[],cur='';String(s||'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean).forEach(word=>{while(wid(word,sz,false)>maxW){let k=word.length;while(k>1&&wid(word.slice(0,k),sz,false)>maxW)k--;if(cur){lines.push(cur);cur=''}lines.push(word.slice(0,k));word=word.slice(k)}let t=cur?cur+' '+word:word;if(wid(t,sz,false)<=maxW)cur=t;else{lines.push(cur);cur=word}});if(cur)lines.push(cur);return lines};
+ const wrap=(s,maxW,sz)=>String(s||'').split(/\r?\n/).flatMap(par=>wrap1(par,maxW,sz));
+ const drawHeader=top=>{let x=M;headers.forEach((h,i)=>{cell(x,top-rowH,colW[i],rowH,h,10,true);x+=colW[i]});box(M,top-rowH,tw,rowH,1.6)};
+ newPage();
+ // Titre
+ box(M,H-90,tw,50,1.6);
+ text(W/2,H-62,15,'BILAN DU TRAVAIL JOURNALIER',true,'c');
+ text(W/2,H-80,11,'Période : '+label,false,'c');
+ // Récapitulatif
+ const sw=tw/5;
+ [['Total des heures',fmt(sum)+' h'],['Heures vendredi / férié',fmt(fr)+' h'],['CR acquis',fmt(fr/8)+' jour(s)'],['Heures du samedi',fmt(sat)+' h'],['Heures de nuit (19h00 - 07h00)',fmt(nuit)+' h']].forEach((v,i)=>{
+  cell(M+i*sw,H-127,sw,22,v[0],8.5,true);cell(M+i*sw,H-151,sw,24,v[1],12,true)});
+ // Tableau
+ let top=H-175,bottom=M+40;drawHeader(top);let y=top-rowH;
+ const cap=Math.floor((H-M-rowH-bottom-11)/11);
+ list.forEach((e,i)=>{
+  let dl=wrap(e.desc,colW[7]-12,9),first=true,f=off(e);
+  let full=[String(i+1),e.date.split('-').reverse().join('/'),day(e.date)+(e.ferie?' (férié)':''),e.from,e.to,e.normal?'Normale':fmt(e.hours)+' h',f?fmt(e.hours/8)+' j':'-'];
+  do{
+   let chunk=dl;
+   if(y-Math.max(rowH,dl.length*11+11)<bottom){
+    if(dl.length<=cap){newPage();top=H-M;drawHeader(top);y=top-rowH}
+    else{let avail=Math.floor((y-bottom-11)/11);if(avail<2){newPage();top=H-M;drawHeader(top);y=top-rowH;avail=cap}chunk=dl.slice(0,avail)}
+   }
+   let h=Math.max(rowH,chunk.length*11+11),x=M;
+   full.forEach((c,k)=>{cell(x,y-h,colW[k],h,first?c:'',10,f);x+=colW[k]});
+   box(x,y-h,colW[7],h);
+   let ty=y-(h-chunk.length*11)/2-8.5;
+   chunk.forEach((ln,k)=>text(x+6,ty-k*11,9,ln,false,'l'));
+   y-=h;dl=dl.slice(chunk.length);first=false;
+   if(dl.length){newPage();top=H-M;drawHeader(top);y=top-rowH}
+  }while(dl.length);
+ });
+ // Ligne de total
+ if(y-rowH<bottom){newPage();y=H-M}
+ let w5=colW.slice(0,5).reduce((a,b)=>a+b,0);
+ cell(M,y-rowH,w5,rowH,'TOTAL',10,true);cell(M+w5,y-rowH,colW[5],rowH,fmt(sum)+' h',10,true);cell(M+w5+colW[5],y-rowH,colW[6],rowH,fmt(fr/8)+' j',10,true);box(M+w5+colW[5]+colW[6],y-rowH,colW[7],rowH);box(M,y-rowH,tw,rowH,1.6);
+ // Pied de page
+ P.forEach((p,i)=>{idx=i;out(`0.6 w ${M} ${M+14} m ${W-M} ${M+14} l S\n`);text(M,M,8,'Lignes en gras : vendredis et jours fériés (CR = durée / 8 h). Normale : journée 08h00 - 16h00, non comptée dans les totaux.',false,'l');text(W-M,M,8,`Page ${i+1} / ${P.length}`,false,'r')});
+ const objs=['<< /Type /Catalog /Pages 2 0 R >>',
+  `<< /Type /Pages /Kids [${P.map((_,i)=>(5+i*2)+' 0 R').join(' ')}] /Count ${P.length} >>`,
+  '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+  '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'];
+ P.forEach((p,i)=>{objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6+i*2} 0 R >>`);objs.push(`<< /Length ${p.length} >>\nstream\n${p}\nendstream`)});
+ let pdf='%PDF-1.4\n',offsets=[];
+ objs.forEach((o,i)=>{offsets.push(pdf.length);pdf+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
+ let xref=pdf.length;pdf+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n';
+ offsets.forEach(off=>pdf+=String(off).padStart(10,'0')+' 00000 n \n');
+ pdf+='trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+ let blob=new Blob([pdf],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='Bilan_HS_'+month+'.pdf';document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+$('save').onclick=()=>{
+ if(!data.length){alert('Aucune donnée à sauvegarder.');return}
+ let blob=new Blob([JSON.stringify({app:'heures-supplementaires',version:1,saved:new Date().toISOString(),data},null,1)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='Sauvegarde_Heures_Sup_'+today()+'.json';document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),10000);
+};
+$('restore').onclick=()=>$('file').click();
+$('file').onchange=ev=>{
+ let f=ev.target.files[0];if(!f)return;
+ let r=new FileReader();
+ r.onload=()=>{
+  try{
+   let j=JSON.parse(r.result),arr=Array.isArray(j)?j:j.data;
+   if(!Array.isArray(arr)||!arr.length)throw 0;
+   let seen=new Set(),clean=arr.map((x,i)=>{
+    if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x.date)||!/^\d{2}:\d{2}$/.test(x.from)||!/^\d{2}:\d{2}$/.test(x.to)||typeof x.hours!=='number')throw 0;
+    let id=Number(x.id)||Date.now()+i;while(seen.has(id))id++;seen.add(id);
+    return {id,date:x.date,from:x.from,to:x.to,hours:x.hours,ferie:!!x.ferie,normal:!!x.normal,desc:String(x.desc||'')}
+   });
+   ask('Restaurer '+clean.length+' enregistrement(s) depuis ce fichier ?\n\nLes données actuelles de cet appareil seront remplacées.',{ok:'Oui, restaurer',danger:true},()=>{data=clean;reset();draw()});
+  }catch(e){alert('Fichier de sauvegarde invalide.')}
+ };
+ r.readAsText(f);ev.target.value='';
+};
+$('date').value=today();draw();
+</script></body></html>
